@@ -113,7 +113,7 @@ df_donut = bar_hab_tree %>%
   mutate(ymax = cumsum(prop_hab),
          ymin = c(0, head(ymax, n = -1)),
          color_ct = if_else(nb_hab == 0, "#E8E8E8", color_ct),
-         # label_position = (ymax + ymin) / 2,
+         label_position = (ymax + ymin) / 2,
          label = if_else(nb_hab == 0, NA, nb_hab)) 
 
 suppressWarnings(suppressMessages(ggplot(df_donut) +
