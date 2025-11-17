@@ -13,6 +13,8 @@ format:
     toc-location: left
     embed-resources: true
     css: styles.css
+    output-file: "index"
+    output-ext: "html"
 execute:
   echo: false
   message : false
