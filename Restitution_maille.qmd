@@ -1,0 +1,191 @@
+---
+params:
+  maille_name: "--050609-Chevalier-Adon-"
+title: "Résumé des observations Vigie-Flore"
+format:
+  html:
+    # theme: 
+    #   light: flatly
+    #   dark: darkly
+    toc: true
+    toc-title: "Sommaire"
+    toc-depth: 1
+    toc-location: left
+    embed-resources: true
+    css: styles.css
+execute:
+  echo: false
+  message : false
+  warning : false
+  error : false
+---
+
+```{r}
+# Variables constantes
+maille_name = params$maille_name
+```
+
+```{r}
+source("programs/library.R")
+source("programs/df_vigieflore_maille.R")
+source("programs/function_graphics.R")
+```
+
+## Maille étudiée : `r maille_name`
+
+```{r}
+nb_taxons = nrow(df_sp_year)
+nb_annees = length(unique(df_vigieflore_maille$session_year))
+last_year = max(as.integer(unique(df_vigieflore_maille$session_year)), na.rm = T)
+nb_tax_one = df_sp %>% filter(sum_obs == 1) %>% nrow()
+nb_placette = length(unique(df_vigieflore_maille$placette_id))
+nb_observateurs = length(unique(df_vigieflore_maille$user_id))
+if (nrow(df_sp_lst_year) > 0) {
+  nb_new_sp = nrow(df_sp_lst_year)
+}else{
+  nb_new_sp = "Aucune"
+}
+```
+
+
+# Observations des espèces
+
+#### Nombre de taxons différents observés :
+
+-   `{r} nb_taxons` (`{r} round(mean(df_sp_maille$n), digits = 2)` espèces par maille en moyenne dans la région)
+
+#### Espèces les plus observées depuis le début des suivis :
+
+`r lst_top_5_coll`
+
+#### Nombre d'espèces vues une seule fois :
+
+-   `r nb_tax_one`
+
+::: {.callout-note collapse="true" title="Tableau des espèces vues une seule fois"}
+
+```{r}
+DT::datatable(df_nb_tax_one,
+              class = 'cell-border stripe',
+              extensions = "Buttons",
+              options = list(buttons = c("copy", "csv"),
+                            dom = 'Bfrtip'),
+              rownames = FALSE)
+```
+:::
+
+#### `r nb_new_sp` nouvelle(s) espèce(s) observée(s) lors de la dernière année de suivi :
+
+`r lst_sp_lst_year`
+
+::: {.callout-note collapse="true" title="Tableau de toutes les espèces vues sur la dernière année de suivi"}
+
+```{r}
+DT::datatable(df_obs_last_year,
+              class = 'cell-border stripe',
+              extensions = "Buttons",
+              options = list(buttons = c("copy", "csv"),
+                            dom = 'Bfrtip'),
+              rownames = FALSE)
+```
+:::
+
+#### Répartition des différentes espèces selon leur nombre d'observation (famille - genre - espèce)
+
+```{r}
+plot_ly(labels = df_sunburst$label,
+              parents = df_sunburst$parent,
+              values = df_sunburst$nobs,
+              type = 'sunburst',
+              branchvalues = 'total')
+```
+
+# Description des placettes
+
+Nombre de placettes sur la maille : `{r} nb_placette`
+
+#### Nombre de placettes dans chaque habitat
+
+```{r}
+df_donut = bar_hab_tree %>%
+  mutate(prop_hab = nb_hab/sum(nb_hab)) %>%
+  arrange(desc(row_number())) %>%
+  mutate(ymax = cumsum(prop_hab),
+         ymin = c(0, head(ymax, n = -1)),
+         color_ct = if_else(nb_hab == 0, "#E8E8E8", color_ct),
+         # label_position = (ymax + ymin) / 2,
+         label = if_else(nb_hab == 0, NA, nb_hab)) 
+
+suppressWarnings(suppressMessages(ggplot(df_donut) +
+    geom_rect(aes(ymin = ymin, ymax = ymax, xmin = 5, xmax = 10,
+                 fill = corineType)) +
+    scale_fill_manual(breaks = df_donut$corineType, values = df_donut$color_ct) +
+    coord_polar(theta = "y") +
+    # xlim(c(0, 12)) +
+    geom_label(aes(x = 8, y = label_position,
+                   label = label, vjust = 0),
+               fill = "#fafafa", size = 6) +
+    theme_void() + 
+    theme(legend.position = "left") +
+    labs(fill = "Habitat")))
+```
+
+# Richesse du site
+
+#### Richesse totale chaque année
+
+```{r}
+ggplot(df_richesse_maille, aes(x = Années, y = Richesse)) +
+  geom_bar(stat = "identity", fill = "#17e2f0", color = "#0bbbc7") +
+  theme_cowplot()
+```
+
+#### Richesse cumulée sur la période de suivi
+
+```{r}
+ggplot(df_rich_cum, aes(x = as.integer(session_year), y = rich_cum, group = 1)) +
+  geom_line(color = "#0bbbc7") +
+  geom_point(color = "#17e2f0") +
+  theme_cowplot() +
+  ylab("Richesse cumulée") +
+  xlab("Années") +
+  ylim(c(0,NA))
+```
+
+# Participation
+
+Nombre d'années de suivis : `{r} nb_annees`
+
+Dernière année de suivi : `{r} last_year`
+
+Nombre d'observateurs : `{r} nb_observateurs`
+
+```{r}
+suivi_temporel_transects(df = df_placette_tempo_line, vec_limits_x = df_vigieflore$session_year,
+                         grid = TRUE, ylab = "Nom de la placette")
+```
+
+```{r}
+# library(leaflet)
+# 
+# greenLeafIcon <- makeIcon(
+#   iconUrl = "https://leafletjs.com/examples/custom-icons/leaf-green.png",
+#   iconWidth = 38, iconHeight = 95,
+#   iconAnchorX = 22, iconAnchorY = 94,
+#   shadowUrl = "https://leafletjs.com/examples/custom-icons/leaf-shadow.png",
+#   shadowWidth = 50, shadowHeight = 64,
+#   shadowAnchorX = 4, shadowAnchorY = 62
+# )
+# 
+# df_latlong = df_vigieflore_maille %>%
+#   select(long_theorique, lat_theorique, placette_id) %>%
+#   unique() %>%
+#   mutate(long = as.numeric(long_theorique),
+#          lat = as.numeric(lat_theorique)) 
+# 
+# leaflet(data = df_latlong) %>%
+#   addTiles() %>%
+#   addMarkers(~long, ~lat, label = ~placette_id)
+
+```
+

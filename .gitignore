@@ -1,0 +1,14 @@
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+.quarto
+*.Rproj
+*.pdf
+data/Intitute*
+data/TAXREF*/
+data/export_vigie_flore.csv
+data/creation*/
+**/*.tif
+out/*.html

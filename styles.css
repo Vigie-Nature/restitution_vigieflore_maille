@@ -1,0 +1,76 @@
+.plotly {
+  width: 700px !important; /* Ajuste la largeur */
+  height: 600px !important; /* Ajuste la hauteur */
+  justify-content: center;
+}
+
+.title {
+	color: #4d7894;
+	font-size: 38px;
+	background-color: #e3e6eb;
+	text-align: center;
+	display: flex;
+  justify-content: center;
+  align-items: center;
+	block-size: 90px;
+}
+
+/* Bandeau de couleur sur toute la largeur pour le titre Quarto */
+#title-block-header {
+    background-color: #007acc; /* ta couleur */
+    padding: 0em 0em 1em 0em;
+    /*width: 20em;*/
+    /*position: relative;*/
+    /*left: 50%;
+    right: 50%;*/
+    margin-left: -1.5em;
+    margin-right: -1.5em;
+    margin-top: -1em;
+    text-align: center;
+}
+
+h1 {
+	color: #b6d33b;
+	font-size: 32px;
+}
+
+h2{
+  font-size: 26px;
+}
+
+h3{
+  color: #B4656F;
+  font-size: 30px;
+}
+
+h4 {
+	color: #4b647e;
+	font-size: 26px;
+	font-weight: bold;
+}
+
+body {
+	/* font-family: "Chilanka"; */
+	font-family: "Helvetihand";
+	font-size: 24px;
+	/* background-color: #f1a1a1a1; */
+	/* color: #b2f1d2; */
+}
+
+/* Couleur de la sidebar */
+.sidebar, .quarto-sidebar, .quarto-sidebar-toggle {
+    background-color: #e3e6eb;
+}
+
+.margin-column {
+    background-color: #e3e6eb;
+}
+
+#TOC {
+  font-size: 20px;
+}
+
+/* Couleur du texte dans la sidebar */
+/* .sidebar, .quarto-sidebar {
+    color: #bfcb0d;
+} */
